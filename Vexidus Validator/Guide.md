@@ -1,4 +1,5 @@
-### Welcome to Vexidus Validator Guide ###
+## Welcome to Vexidus Validator Guide ##
+
 
 ## Getting Started ##
 
