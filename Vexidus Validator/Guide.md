@@ -12,10 +12,10 @@ in order to be eligible for rewards distributions.
 
 - Any home computer with stable internet connection
 - VPS including cloud or dedicated, HOWEVER, your provider must allow blockchain activity (See list below)
-- Smartphone using Raspberry Pi (COMING SOON)
-- Stake of at least 10,000 VXS
+- Raspberry Pi (4 or 5 recommended with at least 8GB)
+- Stake of 10,000 VXS
 
-NOTE ON PROVIDERS
+#### NOTE ON PROVIDERS ####
 This list does not constitute support or disapproval and is not all inclusive:
 
 ✅ OVH
