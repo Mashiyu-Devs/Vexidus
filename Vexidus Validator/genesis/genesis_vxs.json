@@ -1,0 +1,21 @@
+{
+  "total_supply": "1618000000000000000",
+  "genesis_liquid": "404500000000000000",
+  "allocations": {
+    "foundation": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "amount": "161800000000000000",
+      "label": "Vexidus Foundation"
+    },
+    "testnet_rewards": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "amount": "161800000000000000",
+      "label": "Testnet Validator Rewards"
+    },
+    "defi_incentives": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000003",
+      "amount": "80900000000000000",
+      "label": "DeFi Liquidity Incentives"
+    }
+  }
+}
