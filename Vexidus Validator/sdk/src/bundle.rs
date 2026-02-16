@@ -35,6 +35,7 @@ pub struct BundleBuilder {
     max_priority_fee: u64,
     valid_until: Timestamp,
     nonce: u64,
+    sender_pubkey: Option<Vec<u8>>,
 }
 
 impl BundleBuilder {
@@ -48,6 +49,7 @@ impl BundleBuilder {
             max_priority_fee: 0,
             valid_until: Timestamp::now() + 3600,
             nonce: 0,
+            sender_pubkey: None,
         })
     }
 
@@ -172,6 +174,36 @@ impl BundleBuilder {
         self
     }
 
+    // --- Upgrade / Governance Operations ---
+
+    /// Schedule a network upgrade.
+    pub fn schedule_upgrade(
+        mut self,
+        name: String,
+        height: u64,
+        binary_url: String,
+        checksum: String,
+        info_url: String,
+    ) -> Self {
+        self.operations.push(Operation::ScheduleUpgrade {
+            name, height, binary_url, checksum, info_url,
+        });
+        self.max_gas = self.max_gas.max(200_000);
+        self
+    }
+
+    /// Cancel a scheduled upgrade.
+    pub fn cancel_upgrade(mut self, name: String) -> Self {
+        self.operations.push(Operation::CancelUpgrade { name });
+        self
+    }
+
+    /// Vote on a scheduled upgrade.
+    pub fn vote_upgrade(mut self, name: String, approve: bool) -> Self {
+        self.operations.push(Operation::VoteUpgrade { name, approve });
+        self
+    }
+
     // --- DEX Operations ---
 
     /// Create a new liquidity pool.
@@ -285,6 +317,13 @@ impl BundleBuilder {
         self
     }
 
+    /// Include the sender's Ed25519 public key for first-time key revelation.
+    /// Required when the account was created by receiving a transfer (has zero pubkey).
+    pub fn sender_pubkey(mut self, pubkey: Vec<u8>) -> Self {
+        self.sender_pubkey = Some(pubkey);
+        self
+    }
+
     // --- Build ---
 
     /// Build an unsigned bundle (empty signature).
@@ -298,6 +337,7 @@ impl BundleBuilder {
             nonce: Nonce(self.nonce),
             signature: Signature(vec![]),
             expiry_timestamp: None,
+            sender_pubkey: self.sender_pubkey,
         }
     }
 

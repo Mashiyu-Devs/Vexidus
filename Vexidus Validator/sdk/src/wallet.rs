@@ -199,6 +199,7 @@ mod tests {
             nonce: Nonce::zero(),
             signature: Signature(vec![]),
             expiry_timestamp: None,
+            sender_pubkey: None,
         };
 
         let sig = wallet.sign_bundle(&bundle);
