@@ -77,6 +77,7 @@ let info = client.get_validator("YOUR_ADDRESS").await?;
 
 ## Links
 
+- [Documentation](https://docs.vexidus.io)
 - [Block Explorer](https://vexscan.io)
 - [Testnet Faucet](https://vexswap.xyz)
 - [Developer Studio](https://vexforge.xyz)

@@ -1,21 +1,21 @@
 ## Vexidus Smart Contracts ##
 
-Vexidus Smart Contracts, VSC, are unique contracts created specifically for our chain. These contracts are similar to ERC
-contracts but are written in Rust like Solana rather than Solidarity.
+Vexidus Smart Contracts (VSC) are token standards created specifically for the Vexidus blockchain. These standards are similar to ERC contracts but are written in Rust like Solana rather than Solidity.
 
 ## Contract Types ##
 
-- VCS-7: Similar to ERC20 or Solana SPL
-- VSC-22: For all non-fungible token (NFT) contracts
-- VSC-55: Multi-token contracts
+- **VSC-7**: Fungible tokens — similar to ERC-20 or Solana SPL
+- **VSC-21**: Non-fungible tokens (NFTs) — similar to ERC-721
+- **VSC-55**: Multi-token contracts — similar to ERC-1155
 
-## Launching a VSC7 Contract ##
+## Launching a VSC-7 Token ##
 
-These contracts are created automatically on chain via VexForge at https://vexforge.xyz. Any users may visit the website and 
-connect their wallet with $VXS to launch a token.
+These tokens are created automatically on-chain via VexForge at https://vexforge.xyz. Any user may visit the website and connect their wallet with $VXS to launch a token.
 
-## Launching a VSC22 Contract ##
-COMING SOON
+## Launching a VSC-21 NFT Collection ##
 
-## Launching a VSC55 Contract ##
-COMING SOON
+NFT collections can be created via VexForge Studio or the SDK. See the [developer documentation](https://docs.vexidus.io/token-standards/overview) for details.
+
+## Launching a VSC-55 Multi-Token ##
+
+Multi-token contracts (fungible + non-fungible in one collection) can be created via VexForge Studio or the SDK. See the [developer documentation](https://docs.vexidus.io/token-standards/overview) for details.

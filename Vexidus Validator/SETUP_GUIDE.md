@@ -36,8 +36,8 @@ Vexidus validators produce blocks every 12 seconds and earn rewards from two sou
 | Max active validators | 100 |
 | Block time | 12 seconds |
 | Epoch duration | 300 seconds |
-| Double-sign slash | 5% |
-| Downtime slash | 0.1% |
+| Slashing | None (jail + throttle only — your VXS is never at risk) |
+| Jail threshold | 5 missed blocks → jailed (1-hour cooldown, then unjail) |
 
 Validators use Ed25519 keys for block signing and vote participation in the HyperSync consensus protocol. P2P transport uses QUIC (TLS 1.3 + multiplexing over UDP).
 
@@ -92,17 +92,7 @@ These are installed automatically by the [quick install script](#quick-install-o
 
 ## Install Vexidus
 
-### Quick Install (one command)
-
-```bash
-curl -sSf https://raw.githubusercontent.com/Mashiyu-Devs/Vexidus/main/scripts/install-validator.sh | bash
-```
-
-This installs all dependencies, builds the node from source, creates the system user and directories, and prints next steps. It does **not** generate keys or start the node — those steps require your input.
-
-> To inspect the script before running: `curl -sSf https://raw.githubusercontent.com/Mashiyu-Devs/Vexidus/main/scripts/install-validator.sh | less`
-
-### Manual Install
+### Install
 
 #### 1. Install system dependencies
 
@@ -287,17 +277,6 @@ NoNewPrivileges=true
 [Install]
 WantedBy=multi-user.target
 ```
-
-> **Alternatively**, generate the service file programmatically with the SDK:
-> ```rust
-> use vexidus_sdk::ValidatorConfig;
-> let config = ValidatorConfig::load("validator.toml")?;
-> config.write_systemd_service(
->     "/etc/systemd/system/vexidus-validator.service",
->     "/usr/local/bin/vexidus-node",
->     "/opt/vexidus",
-> )?;
-> ```
 
 ---
 
@@ -726,6 +705,10 @@ Options:
       --min-validators <N>           Minimum validators required [default: 1]
       --reject-unsigned-bundles      Reject unsigned transaction bundles
       --no-leader-check              Disable leader rotation (solo testnet only)
+      --pruning <MODE>               Pruning mode: archive, validator, aggressive [default: archive]
+      --snapshot-url <URL>           Download and restore snapshot on first start
+      --serve-snapshots              Serve checkpoint snapshots for state sync
+      --light                        Run in light mode (headers only, minimal resources)
       --backfill-indexes             Backfill explorer indexes on startup
   -h, --help                         Print help
 ```
@@ -750,6 +733,7 @@ Check your validator's reputation score via `vex_getValidator` — the `performa
 
 ## Links
 
+- **Documentation:** [docs.vexidus.io](https://docs.vexidus.io)
 - **Repository:** [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus)
 - **Explorer:** [vexscan.io](https://vexscan.io)
 - **Faucet:** [vexswap.xyz](https://vexswap.xyz) (testnet VXS for staking)
