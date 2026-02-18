@@ -26,7 +26,7 @@ Run a validator node on the Vexidus network and earn VXS rewards for securing th
 
 Vexidus validators produce blocks every 12 seconds and earn rewards from two sources:
 
-- **Block rewards** — ~17.96 VXS per block (year 1-2 rate), auto-adjusting over a 10-year emission schedule
+- **Block rewards** — ~4.94 VXS per block (year 1-2 rate), auto-adjusting over a 10-year emission schedule
 - **Transaction fees** — 100% of fees go to the block proposer (no burn)
 
 | Parameter | Value |

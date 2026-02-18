@@ -20,7 +20,7 @@ Run a validator node on the Vexidus network and earn VXS rewards for securing th
 ## Rewards
 
 Validators earn from two sources:
-- **Block rewards** — ~17.96 VXS per block (~$0.018 at $0.001/VXS)
+- **Block rewards** — ~4.94 VXS per block (Year 1-2 rate, 0.8% annual inflation)
 - **Transaction fees** — 100% of fees go to the block proposer
 
 Testnet validators who maintain high performance earn **mainnet VXS airdrops** at launch, proportional to on-chain reputation score.

@@ -1,21 +1,72 @@
 {
   "total_supply": "1618000000000000000",
-  "genesis_liquid": "404500000000000000",
+  "genesis_liquid": "1553280000000000000",
+  "block_reward_pool": "64720000000000000",
+  "circulating_at_tge_percent": 73,
   "allocations": {
-    "foundation": {
+    "public_distribution": {
       "address": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "amount": "614840000000000000",
+      "percent": 38,
+      "label": "Public Distribution (Pre-sale 20% + TGE 18%)",
+      "status": "circulating"
+    },
+    "ecosystem_defi": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "amount": "242700000000000000",
+      "percent": 15,
+      "label": "Ecosystem & DeFi Fund",
+      "status": "circulating"
+    },
+    "foundation_treasury": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000003",
       "amount": "161800000000000000",
-      "label": "Vexidus Foundation"
+      "percent": 10,
+      "label": "Foundation Treasury (Vexidus Corp)",
+      "status": "circulating"
+    },
+    "team_founders": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000004",
+      "amount": "161800000000000000",
+      "percent": 10,
+      "label": "Team & Founders",
+      "status": "locked",
+      "vesting": "4-year, 1-year cliff"
+    },
+    "marketing_community": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000005",
+      "amount": "113260000000000000",
+      "percent": 7,
+      "label": "Marketing & Community",
+      "status": "circulating"
+    },
+    "saft_round": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000006",
+      "amount": "48540000000000000",
+      "percent": 3,
+      "label": "SAFT Round (Swiss Zug formation)",
+      "status": "locked",
+      "vesting": "12-month, 6-month cliff"
     },
     "testnet_rewards": {
-      "address": "0x0000000000000000000000000000000000000000000000000000000000000002",
-      "amount": "161800000000000000",
-      "label": "Testnet Validator Rewards"
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000007",
+      "amount": "48540000000000000",
+      "percent": 3,
+      "label": "Testnet Rewards",
+      "status": "circulating"
     },
-    "defi_incentives": {
-      "address": "0x0000000000000000000000000000000000000000000000000000000000000003",
-      "amount": "80900000000000000",
-      "label": "DeFi Liquidity Incentives"
+    "staking_strategic": {
+      "address": "0x0000000000000000000000000000000000000000000000000000000000000008",
+      "amount": "161800000000000000",
+      "percent": 10,
+      "label": "Staking & Strategic Reserve",
+      "status": "locked",
+      "release": "governance-controlled"
     }
+  },
+  "notes": {
+    "validator_block_rewards": "4% (64,720,000 VXS) emitted over 10 years via block production, not included in genesis",
+    "corporate_structure": "Vexidus Corporation (Delaware C-Corp) + Swiss Zug entity for token issuance",
+    "launch_target": "$0.16-0.30/VXS"
   }
 }
