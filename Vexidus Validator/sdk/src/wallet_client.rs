@@ -130,7 +130,7 @@ impl WalletClient {
 
     // --- Chain Info ---
 
-    /// Get the chain ID (testnet: "0x18b470", mainnet: "0x18b471").
+    /// Get the chain ID (testnet: "0x18b070", mainnet: "0x18b071").
     pub async fn chain_id(&self) -> Result<String> {
         let result = self.rpc_call("eth_chainId", json!([])).await?;
         Ok(result.as_str().unwrap_or("0x0").to_string())

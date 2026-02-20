@@ -160,6 +160,33 @@ impl BundleBuilder {
         self
     }
 
+    /// Toggle auto-compound for a delegation.
+    pub fn set_auto_compound(mut self, validator: &str, enable: bool) -> Result<Self, BundleError> {
+        let validator_addr = address_utils::parse_address(validator)?;
+        self.operations.push(Operation::SetAutoCompound {
+            validator: validator_addr,
+            enable,
+        });
+        Ok(self)
+    }
+
+    /// Configure staking pool settings (validator only).
+    pub fn set_pool_config(
+        mut self,
+        pool_enabled: bool,
+        pool_name: String,
+        pool_min_delegation: u128,
+        pool_auto_compound_default: bool,
+    ) -> Self {
+        self.operations.push(Operation::SetPoolConfig {
+            pool_enabled,
+            pool_name,
+            pool_min_delegation,
+            pool_auto_compound_default,
+        });
+        self
+    }
+
     /// Set on-chain validator profile metadata.
     pub fn set_validator_metadata(
         mut self,
@@ -201,6 +228,128 @@ impl BundleBuilder {
     /// Vote on a scheduled upgrade.
     pub fn vote_upgrade(mut self, name: String, approve: bool) -> Self {
         self.operations.push(Operation::VoteUpgrade { name, approve });
+        self
+    }
+
+    // --- VSC-88: Governance Operations ---
+
+    /// Create a governance proposal.
+    pub fn create_proposal(
+        mut self,
+        proposal_type: String,
+        title: String,
+        description: String,
+        parameter_key: Option<String>,
+        parameter_value: Option<String>,
+        treasury_recipient: Option<Address>,
+        treasury_amount: Option<u128>,
+    ) -> Self {
+        self.operations.push(Operation::CreateProposal {
+            proposal_type, title, description,
+            parameter_key, parameter_value,
+            treasury_recipient, treasury_amount,
+            safety_chain: None, safety_contract: None,
+            safety_level: None, safety_collection: None,
+        });
+        self.max_gas = self.max_gas.max(200_000);
+        self
+    }
+
+    /// Vote on a governance proposal.
+    pub fn vote_proposal(mut self, proposal_id: u64, approve: bool) -> Self {
+        self.operations.push(Operation::VoteProposal { proposal_id, approve });
+        self
+    }
+
+    /// Execute an approved governance proposal.
+    pub fn execute_proposal(mut self, proposal_id: u64) -> Self {
+        self.operations.push(Operation::ExecuteProposal { proposal_id });
+        self
+    }
+
+    /// Cancel a governance proposal.
+    pub fn cancel_proposal(mut self, proposal_id: u64) -> Self {
+        self.operations.push(Operation::CancelProposal { proposal_id });
+        self
+    }
+
+    // --- VSC-88: Multi-Sig Operations ---
+
+    /// Create a multi-sig account.
+    pub fn create_multisig(mut self, signers: Vec<Address>, threshold: u8, label: String) -> Self {
+        self.operations.push(Operation::CreateMultiSig { signers, threshold, label });
+        self.max_gas = self.max_gas.max(200_000);
+        self
+    }
+
+    /// Propose a transaction from a multi-sig account.
+    pub fn propose_multisig_tx(mut self, multisig_address: Address, operations: Vec<Operation>, description: String) -> Self {
+        self.operations.push(Operation::ProposeMultiSigTx { multisig_address, operations, description });
+        self.max_gas = self.max_gas.max(200_000);
+        self
+    }
+
+    /// Approve a pending multi-sig transaction.
+    pub fn approve_multisig_tx(mut self, multisig_address: Address, tx_id: u64) -> Self {
+        self.operations.push(Operation::ApproveMultiSigTx { multisig_address, tx_id });
+        self.max_gas = self.max_gas.max(200_000);
+        self
+    }
+
+    /// Revoke approval on a pending multi-sig transaction.
+    pub fn revoke_multisig_approval(mut self, multisig_address: Address, tx_id: u64) -> Self {
+        self.operations.push(Operation::RevokeMultiSigApproval { multisig_address, tx_id });
+        self
+    }
+
+    // --- Bridge Operations ---
+
+    /// Bridge deposit with tier-aware proof type.
+    /// Encodes proof as serialized JSON in proof_bytes for the BridgeDeposit handler.
+    pub fn bridge_deposit_v2(
+        mut self,
+        source_chain: &str,
+        source_tx_hash: &str,
+        token_contract: &str,
+        amount: u128,
+        proof: vexidus_types::bridge::BridgeProofType,
+        destination: &str,
+    ) -> Result<Self, BundleError> {
+        let dest_addr = address_utils::parse_address(destination)?;
+        let proof_bytes = serde_json::to_vec(&proof).unwrap_or_default();
+        self.operations.push(Operation::BridgeDeposit {
+            proof: vexidus_types::bridge::ZkBurnProof {
+                source_chain: source_chain.into(),
+                source_tx_hash: source_tx_hash.into(),
+                token_contract: token_contract.into(),
+                amount,
+                proof_bytes,
+            },
+            destination: dest_addr,
+        });
+        self.max_gas = self.max_gas.max(150_000);
+        Ok(self)
+    }
+
+    /// Bridge deposit using an IntentVM Goal::Bridge (atomic with other goals).
+    pub fn bridge_intent(
+        mut self,
+        source_chain: &str,
+        token_symbol: &str,
+        amount: u128,
+        proof: vexidus_types::bridge::BridgeProofType,
+    ) -> Self {
+        use vexidus_types::intent::{Goal, Constraints};
+        self.operations.push(Operation::Intent {
+            goal: Goal::Bridge {
+                source_chain: source_chain.into(),
+                token_symbol: token_symbol.into(),
+                amount: Amount(amount),
+                proof,
+            },
+            constraints: Constraints::default(),
+        });
+        self.max_gas = self.max_gas.max(200_000);
         self
     }
 
@@ -289,6 +438,15 @@ impl BundleBuilder {
             min_amount_out,
         });
         Ok(self)
+    }
+
+    // --- VNS Operations ---
+
+    /// Register a .vex name (mints an NFT — holder = resolution address).
+    pub fn register_name(mut self, name: &str) -> Self {
+        self.operations.push(Operation::RegisterName { name: name.into() });
+        self.max_gas = self.max_gas.max(200_000);
+        self
     }
 
     // --- Configuration ---

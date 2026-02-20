@@ -71,6 +71,21 @@ pub fn parse_intent(text: &str) -> Result<ParsedIntent, IntentError> {
         return Ok(parsed);
     }
 
+    // Try bridge pattern: "bridge 10 SOL from solana"
+    if let Some(parsed) = try_parse_bridge(&text) {
+        return Ok(parsed);
+    }
+
+    // Try bridge+action pattern: "bridge 10 SOL from solana and swap to VXS"
+    if let Some(parsed) = try_parse_bridge_and_action(&text) {
+        return Ok(parsed);
+    }
+
+    // Try register pattern: "register chris.vex" or "register chris"
+    if let Some(parsed) = try_parse_register(&text) {
+        return Ok(parsed);
+    }
+
     // Fallback: wrap as Custom goal for future LLM processing
     Ok(ParsedIntent {
         goal: Goal::Custom(text),
@@ -171,6 +186,108 @@ fn try_parse_stake(text: &str) -> Option<ParsedIntent> {
     })
 }
 
+/// Known chain name aliases → canonical chain names
+fn resolve_chain(name: &str) -> Option<String> {
+    match name.to_lowercase().as_str() {
+        "solana" | "sol" => Some("solana".into()),
+        "ethereum" | "eth" => Some("ethereum".into()),
+        "bitcoin" | "btc" => Some("bitcoin".into()),
+        "polygon" | "matic" => Some("polygon".into()),
+        "bsc" | "bnb" => Some("bsc".into()),
+        "base" => Some("base".into()),
+        "arbitrum" | "arb" => Some("arbitrum".into()),
+        _ => None,
+    }
+}
+
+fn try_parse_bridge(text: &str) -> Option<ParsedIntent> {
+    // "bridge 10 SOL from solana"
+    let re = Regex::new(
+        r"bridge\s+(\d+\.?\d*)\s+(\w+)\s+from\s+(\w+)"
+    ).ok()?;
+
+    let caps = re.captures(text)?;
+    let amount_str = caps.get(1)?.as_str();
+    let token_symbol = caps.get(2)?.as_str().to_uppercase();
+    let chain_name = caps.get(3)?.as_str();
+
+    // Check it's not a bridge+action pattern (handled separately)
+    if text.contains(" and ") || text.contains(" then ") {
+        return None;
+    }
+
+    let amount: f64 = amount_str.parse().ok()?;
+    let chain = resolve_chain(chain_name)?;
+    let raw_amount = (amount * 1_000_000_000.0) as u128;
+
+    Some(ParsedIntent {
+        goal: Goal::Bridge {
+            source_chain: chain,
+            token_symbol,
+            amount: Amount(raw_amount),
+            proof: vexidus_types::bridge::BridgeProofType::Legacy,
+        },
+        constraints: Constraints::default(),
+    })
+}
+
+fn try_parse_bridge_and_action(text: &str) -> Option<ParsedIntent> {
+    // "bridge 10 SOL from solana and swap to VXS"
+    let re = Regex::new(
+        r"bridge\s+(\d+\.?\d*)\s+(\w+)\s+from\s+(\w+)\s+(?:and|then)\s+swap\s+(?:to|for)\s+(\w+)"
+    ).ok()?;
+
+    let caps = re.captures(text)?;
+    let amount_str = caps.get(1)?.as_str();
+    let token_symbol = caps.get(2)?.as_str().to_uppercase();
+    let chain_name = caps.get(3)?.as_str();
+    let to_symbol = caps.get(4)?.as_str();
+
+    let amount: f64 = amount_str.parse().ok()?;
+    let chain = resolve_chain(chain_name)?;
+    let raw_amount = (amount * 1_000_000_000.0) as u128;
+
+    // Resolve the bridge token's mint address for swap
+    let from_token = resolve_token(&token_symbol)?;
+    let to_token = resolve_token(to_symbol)?;
+
+    Some(ParsedIntent {
+        goal: Goal::Composite(vec![
+            Goal::Bridge {
+                source_chain: chain,
+                token_symbol,
+                amount: Amount(raw_amount),
+                proof: vexidus_types::bridge::BridgeProofType::Legacy,
+            },
+            Goal::Swap {
+                from_token,
+                to_token,
+                amount: Amount(raw_amount),
+            },
+        ]),
+        constraints: Constraints::default(),
+    })
+}
+
+fn try_parse_register(text: &str) -> Option<ParsedIntent> {
+    // "register chris.vex" or "register chris" or "register my-name"
+    let re = Regex::new(r"register\s+(\S+)").ok()?;
+    let caps = re.captures(text)?;
+    let name = caps.get(1)?.as_str();
+    // Strip .vex suffix if present, normalize
+    let normalized = name.strip_suffix(".vex").unwrap_or(name);
+
+    // Validate: 3-64 chars, alphanumeric + hyphen
+    if normalized.len() < 3 || normalized.len() > 64 { return None; }
+    if !normalized.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') { return None; }
+    if normalized.starts_with('-') || normalized.ends_with('-') { return None; }
+
+    Some(ParsedIntent {
+        goal: Goal::Custom(format!("register_vns:{}", normalized)),
+        constraints: Constraints::default(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -262,6 +379,80 @@ mod tests {
         match result.goal {
             Goal::Custom(_) => {} // Unknown token → Custom fallback
             _ => panic!("Expected Custom for unknown token"),
+        }
+    }
+
+    #[test]
+    fn test_parse_bridge() {
+        let result = parse_intent("bridge 10 SOL from solana").unwrap();
+        match result.goal {
+            Goal::Bridge { source_chain, token_symbol, amount, .. } => {
+                assert_eq!(source_chain, "solana");
+                assert_eq!(token_symbol, "SOL");
+                assert_eq!(amount, Amount(10_000_000_000));
+            }
+            _ => panic!("Expected Bridge"),
+        }
+    }
+
+    #[test]
+    fn test_parse_bridge_and_swap() {
+        let result = parse_intent("bridge 10 SOL from solana and swap to VXS").unwrap();
+        match result.goal {
+            Goal::Composite(goals) => {
+                assert_eq!(goals.len(), 2);
+                match &goals[0] {
+                    Goal::Bridge { source_chain, token_symbol, .. } => {
+                        assert_eq!(source_chain, "solana");
+                        assert_eq!(token_symbol, "SOL");
+                    }
+                    _ => panic!("Expected Bridge as first goal"),
+                }
+                match &goals[1] {
+                    Goal::Swap { .. } => {} // Success
+                    _ => panic!("Expected Swap as second goal"),
+                }
+            }
+            _ => panic!("Expected Composite"),
+        }
+    }
+
+    #[test]
+    fn test_parse_register_name() {
+        let result = parse_intent("register chris.vex").unwrap();
+        match result.goal {
+            Goal::Custom(text) => assert_eq!(text, "register_vns:chris"),
+            _ => panic!("Expected Custom for register"),
+        }
+    }
+
+    #[test]
+    fn test_parse_register_name_without_suffix() {
+        let result = parse_intent("register my-cool-name").unwrap();
+        match result.goal {
+            Goal::Custom(text) => assert_eq!(text, "register_vns:my-cool-name"),
+            _ => panic!("Expected Custom for register"),
+        }
+    }
+
+    #[test]
+    fn test_parse_register_too_short() {
+        let result = parse_intent("register ab").unwrap();
+        match result.goal {
+            Goal::Custom(text) => {
+                // Falls through to generic Custom since "ab" is too short for VNS
+                assert!(!text.starts_with("register_vns:"));
+            }
+            _ => {} // Any non-register_vns result is fine
+        }
+    }
+
+    #[test]
+    fn test_parse_bridge_unknown_chain_falls_to_custom() {
+        let result = parse_intent("bridge 10 SOL from neptune").unwrap();
+        match result.goal {
+            Goal::Custom(_) => {} // Unknown chain → Custom fallback
+            _ => panic!("Expected Custom for unknown chain"),
         }
     }
 }
