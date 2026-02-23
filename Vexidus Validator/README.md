@@ -39,7 +39,7 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 ### Bootstrap Node
 
 ```
-/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWHhBs5eZFBePWtZhgQfcB7Ds55uRjQqmS6ara7aF8hV1U
+/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst
 ```
 
 ## SDK Usage (Rust)

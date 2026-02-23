@@ -37,7 +37,7 @@ Vexidus validators produce blocks every 12 seconds and earn rewards from two sou
 | Block time | 12 seconds |
 | Epoch duration | 300 seconds |
 | Slashing | None (jail + throttle only — your VXS is never at risk) |
-| Jail threshold | 5 missed blocks → jailed (1-hour cooldown, then unjail) |
+| Jail threshold | 500 missed leader slots → jailed (5-minute cooldown, then unjail) |
 
 Validators use Ed25519 keys for block signing and vote participation in the HyperSync consensus protocol. P2P transport uses QUIC (TLS 1.3 + multiplexing over UDP).
 
@@ -224,7 +224,7 @@ data_dir = "/opt/vexidus/data"
 external_addr = "/ip4/YOUR_PUBLIC_IP/udp/9944/quic-v1"
 
 # Bootstrap peers (comma-separated multiaddrs)
-bootnodes = "/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWHhBs5eZFBePWtZhgQfcB7Ds55uRjQqmS6ara7aF8hV1U"
+bootnodes = "/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL"
 
 # Enable detailed logging (useful during initial setup)
 verbose = false
@@ -263,7 +263,7 @@ ExecStart=/usr/local/bin/vexidus-node \
   --p2p-port 9944 \
   --validator-key /opt/vexidus/validator.key \
   --external-addr /ip4/YOUR_PUBLIC_IP/udp/9944/quic-v1 \
-  --bootnodes /ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWHhBs5eZFBePWtZhgQfcB7Ds55uRjQqmS6ara7aF8hV1U \
+  --bootnodes /ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL \
   --gas-price 10
 Restart=always
 RestartSec=5
@@ -442,13 +442,19 @@ Set `--gas-price 0` in your systemd service for free testnet transactions.
 
 ### Bootstrap Nodes
 
-Your node needs at least one bootstrap peer to discover the network. Current bootstrap:
+Your node needs at least one bootstrap peer to discover the network. Current bootstrap nodes:
 
+**EU Seed (Gravelines, France):**
 ```
-/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWHhBs5eZFBePWtZhgQfcB7Ds55uRjQqmS6ara7aF8hV1U
+/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst
 ```
 
-Updated bootstrap lists are published at [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus).
+**NA Seed (Beauharnois, Canada):**
+```
+/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL
+```
+
+Use both in your `--bootnodes` flag (comma-separated) for best redundancy. Updated bootstrap lists are published at [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus).
 
 ### NAT and Firewalls
 
@@ -651,7 +657,7 @@ sudo journalctl -u vexidus-validator -n 100 --no-pager
 
 ### Validator is jailed
 
-Validators are jailed after missing 5 consecutive blocks. Jailed validators cannot produce blocks or earn rewards. After a 1-hour cooldown, unjail yourself:
+Validators are jailed after missing 500 leader slots. Jailed validators cannot produce blocks or earn rewards. After a 5-minute cooldown, unjail yourself:
 
 ```bash
 curl -s http://localhost:9933 \
@@ -727,7 +733,12 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 - Network contribution (peer connectivity)
 - Governance participation (future)
 
-Check your validator's reputation score via `vex_getValidator` — the `performance_score` field (0.5 to 1.0) directly affects your leader selection weight and reward share. New validators start at 0.8.
+Check your validator's reputation score via `vex_getValidator`. Vexidus uses a **two-score system**:
+
+- **Production score** (0-100): Drives leader selection. Based on uptime (50pts), reliability history (30pts), and tenure (20pts). Leader weight = stake × (production_score / 100). New validators start at 60.
+- **Public reputation** (0-100): Delegator-facing display with 7 factors (uptime, vote participation, stake, commission, transactions, connectivity, governance).
+
+Higher production score = more leader slots = more rewards.
 
 ---
 
