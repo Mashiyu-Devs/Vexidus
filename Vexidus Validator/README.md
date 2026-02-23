@@ -36,11 +36,22 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 | Consensus | HyperSync (Ed25519 voting) |
 | Gas price | ~$0.0002 per transfer |
 
-### Bootstrap Node
+### Bootstrap Nodes
 
+**EU (Gravelines, France):**
 ```
 /ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst
 ```
+**NA (Beauharnois, Canada):**
+```
+/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL
+```
+**Asia (Singapore):**
+```
+/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWMdCaYkY5NiWsprQ5yTBdJwSZ1LKVsSg6eRXwvwm6AxG5
+```
+
+Use all three in your `--bootnodes` flag (comma-separated) for best redundancy.
 
 ## SDK Usage (Rust)
 
