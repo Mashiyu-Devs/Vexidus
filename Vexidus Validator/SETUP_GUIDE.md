@@ -37,9 +37,9 @@ Vexidus validators produce blocks every 12 seconds and earn rewards from two sou
 | Block time | 12 seconds |
 | Epoch duration | 300 seconds |
 | Slashing | None (jail + throttle only — your VXS is never at risk) |
-| Jail threshold | 500 missed leader slots → jailed (5-minute cooldown, then unjail) |
+| Jail threshold | Double-sign detection → escalating jail (1hr → 24hr → 7d → 30d) |
 
-Validators use Ed25519 keys for block signing and vote participation in the HyperSync consensus protocol. P2P transport uses QUIC (TLS 1.3 + multiplexing over UDP).
+Validators use Ed25519 keys for block signing and consensus participation in the HyperSync BFT protocol with the Vexcel Attestation DAG. When a leader is slow, non-leader validators produce lightweight attestation blocks that prove liveness without entering the canonical chain — no rollbacks, no forks. P2P transport uses QUIC (TLS 1.3 + multiplexing over UDP).
 
 ---
 
@@ -224,7 +224,7 @@ data_dir = "/opt/vexidus/data"
 external_addr = "/ip4/YOUR_PUBLIC_IP/udp/9944/quic-v1"
 
 # Bootstrap peers (comma-separated multiaddrs)
-bootnodes = "/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL,/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWMdCaYkY5NiWsprQ5yTBdJwSZ1LKVsSg6eRXwvwm6AxG5"
+bootnodes = "/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWGsFiGx7DxkmELeF7mymWQHpCwuQQ1Arx1DgCFBJixbbz,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL,/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWNtRB1LKdKCTsiqm4e4tCKrvDTHpzVmYKA1uYobmbyVv3"
 
 # Enable detailed logging (useful during initial setup)
 verbose = false
@@ -263,7 +263,7 @@ ExecStart=/usr/local/bin/vexidus-node \
   --p2p-port 9944 \
   --validator-key /opt/vexidus/validator.key \
   --external-addr /ip4/YOUR_PUBLIC_IP/udp/9944/quic-v1 \
-  --bootnodes /ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL,/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWMdCaYkY5NiWsprQ5yTBdJwSZ1LKVsSg6eRXwvwm6AxG5 \
+  --bootnodes /ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWGsFiGx7DxkmELeF7mymWQHpCwuQQ1Arx1DgCFBJixbbz,/ip4/158.69.203.54/udp/9945/quic-v1/p2p/12D3KooWFyDKj3e8a9QQ2au3vmjQHDYCZp86kQoua7NLX1mSZsCL,/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWNtRB1LKdKCTsiqm4e4tCKrvDTHpzVmYKA1uYobmbyVv3 \
   --gas-price 10
 Restart=always
 RestartSec=5
@@ -446,7 +446,7 @@ Your node needs at least one bootstrap peer to discover the network. Current boo
 
 **EU Seed (Gravelines, France):**
 ```
-/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst
+/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWGsFiGx7DxkmELeF7mymWQHpCwuQQ1Arx1DgCFBJixbbz
 ```
 
 **NA Seed (Beauharnois, Canada):**
@@ -456,7 +456,7 @@ Your node needs at least one bootstrap peer to discover the network. Current boo
 
 **Asia Seed (Singapore):**
 ```
-/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWMdCaYkY5NiWsprQ5yTBdJwSZ1LKVsSg6eRXwvwm6AxG5
+/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWNtRB1LKdKCTsiqm4e4tCKrvDTHpzVmYKA1uYobmbyVv3
 ```
 
 Use all three in your `--bootnodes` flag (comma-separated) for best redundancy. Updated bootstrap lists are published at [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus).
@@ -662,7 +662,7 @@ sudo journalctl -u vexidus-validator -n 100 --no-pager
 
 ### Validator is jailed
 
-Validators are jailed after missing 500 leader slots. Jailed validators cannot produce blocks or earn rewards. After a 5-minute cooldown, unjail yourself:
+Validators are jailed for double-signing (producing two different blocks at the same height). Penalties escalate: 1hr → 24hr → 7d → 30d. Jailed validators cannot produce blocks or earn rewards. After the cooldown expires, unjail yourself:
 
 ```bash
 curl -s http://localhost:9933 \

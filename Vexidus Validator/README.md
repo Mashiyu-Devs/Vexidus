@@ -33,14 +33,14 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 | Block time | 12 seconds |
 | Unbonding period | 21 days |
 | P2P transport | QUIC (UDP) |
-| Consensus | HyperSync (Ed25519 voting) |
+| Consensus | HyperSync BFT + Vexcel Attestation DAG |
 | Gas price | ~$0.0002 per transfer |
 
 ### Bootstrap Nodes
 
 **EU (Gravelines, France):**
 ```
-/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWQwEWNFctZN7F6iwiHi8mfdsgKtKYix1BTV6SLYFqYnst
+/ip4/51.255.80.34/udp/9945/quic-v1/p2p/12D3KooWGsFiGx7DxkmELeF7mymWQHpCwuQQ1Arx1DgCFBJixbbz
 ```
 **NA (Beauharnois, Canada):**
 ```
@@ -48,7 +48,7 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 ```
 **Asia (Singapore):**
 ```
-/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWMdCaYkY5NiWsprQ5yTBdJwSZ1LKVsSg6eRXwvwm6AxG5
+/ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWNtRB1LKdKCTsiqm4e4tCKrvDTHpzVmYKA1uYobmbyVv3
 ```
 
 Use all three in your `--bootnodes` flag (comma-separated) for best redundancy.

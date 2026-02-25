@@ -15,7 +15,7 @@
 ## Key Features
 
 - **IntentVM** (Patent-Pending) — 1 intent, 1 signature, N operations. Describe what you want in natural language.
-- **HyperSync Consensus** — Ed25519 block signing, weighted leader rotation, on-chain reputation scoring.
+- **HyperSync Consensus + Vexcel** — Ed25519 block signing, weighted leader rotation, adaptive attestation DAG for global latency fairness, on-chain reputation scoring.
 - **VexBridge** (Patent-Pending) — Vaultless canonical token bridge. No wrapped tokens, no vaults to hack.
 - **Quantum-Hardened** — Ed25519 + Dilithium3 dual-signature architecture.
 - **Solana-Competitive Fees** — ~$0.0002 per transfer. 100% of fees go to validators (no burn).
