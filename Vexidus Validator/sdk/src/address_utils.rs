@@ -83,6 +83,10 @@ pub fn is_valid_hex_address(addr: &str) -> bool {
 /// - 0x (20-byte): Right-aligns to 32 bytes
 /// - 0x (32-byte): Uses directly
 pub fn parse_address(input: &str) -> Result<Address, AddressError> {
+    // VXS native token vanity address → Address::ZERO
+    if input == Address::VXS_MINT_DISPLAY {
+        return Ok(Address::ZERO);
+    }
     if input.starts_with("Vx0") || input.starts_with("Vx1") {
         let bytes = vx0_to_bytes(input)?;
         Ok(Address(bytes))

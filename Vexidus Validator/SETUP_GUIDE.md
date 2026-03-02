@@ -41,6 +41,8 @@ Vexidus validators produce blocks every 12 seconds and earn rewards from two sou
 
 Validators use Ed25519 keys for block signing and consensus participation in the HyperSync BFT protocol with the Vexcel Attestation DAG. When a leader is slow, non-leader validators produce lightweight attestation blocks that prove liveness without entering the canonical chain — no rollbacks, no forks. P2P transport uses QUIC (TLS 1.3 + multiplexing over UDP).
 
+**Dragonfly Stream** (optional, `--dragonfly-stream` flag): Enables mempoolless transaction delivery with post-quantum Dilithium3 seals. Transactions are forwarded directly to the block leader instead of being broadcast to the gossip mempool — eliminating MEV attack surface entirely. PQ keypairs are auto-generated on startup.
+
 ---
 
 ## System Requirements
@@ -267,7 +269,7 @@ ExecStart=/usr/local/bin/vexidus-node \
   --gas-price 10
 Restart=always
 RestartSec=5
-LimitNOFILE=65536
+LimitNOFILE=1048576
 
 # Hardening
 ProtectSystem=full
@@ -721,6 +723,10 @@ Options:
       --serve-snapshots              Serve checkpoint snapshots for state sync
       --light                        Run in light mode (headers only, minimal resources)
       --backfill-indexes             Backfill explorer indexes on startup
+      --dragonfly-stream             Enable Dragonfly Stream (mempoolless PQ-sealed tx delivery)
+      --governance-mode <MODE>       Governance mode: seed-authority, full [default: seed-authority]
+      --upgrade-authority <PUBKEY>   Upgrade authority public key (hex)
+      --no-double-sign-jail          Disable double-sign jailing (testnet only)
   -h, --help                         Print help
 ```
 

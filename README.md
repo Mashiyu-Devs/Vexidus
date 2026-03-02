@@ -16,8 +16,9 @@
 
 - **IntentVM** (Patent-Pending) — 1 intent, 1 signature, N operations. Describe what you want in natural language.
 - **HyperSync Consensus + Vexcel** — Ed25519 block signing, weighted leader rotation, adaptive attestation DAG for global latency fairness, on-chain reputation scoring.
+- **Dragonfly Stream** — Mempoolless transaction delivery with PQ seals. Zero MEV by design.
 - **VexBridge** (Patent-Pending) — Vaultless canonical token bridge. No wrapped tokens, no vaults to hack.
-- **Quantum-Hardened** — Ed25519 + Dilithium3 dual-signature architecture.
+- **Quantum-Hardened** — Ed25519 + Dilithium3 dual-signature architecture. PQ seals active on transaction forwarding.
 - **Solana-Competitive Fees** — ~$0.0002 per transfer. 100% of fees go to validators (no burn).
 - **No Slashing** — Validators are jailed for downtime, never slashed. Your VXS is never at risk.
 

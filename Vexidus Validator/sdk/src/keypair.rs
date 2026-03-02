@@ -102,28 +102,12 @@ impl ValidatorKeypair {
     }
 }
 
-/// Generate 32 random bytes for key generation.
+/// Generate 32 cryptographically secure random bytes via OS CSPRNG.
 fn rand_bytes() -> [u8; 32] {
-    use sha2::{Sha256, Digest};
-    // Use system randomness seeded with multiple entropy sources
-    let mut hasher = Sha256::new();
-    hasher.update(std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH).unwrap()
-        .as_nanos().to_le_bytes());
-    hasher.update(std::process::id().to_le_bytes());
-    // Read 32 bytes from /dev/urandom on Unix
-    #[cfg(unix)]
-    {
-        use std::io::Read;
-        if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
-            let mut buf = [0u8; 32];
-            let _ = f.read_exact(&mut buf);
-            hasher.update(&buf);
-        }
-    }
-    let result = hasher.finalize();
+    use rand::rngs::OsRng;
+    use rand::RngCore;
     let mut out = [0u8; 32];
-    out.copy_from_slice(&result);
+    OsRng.fill_bytes(&mut out);
     out
 }
 

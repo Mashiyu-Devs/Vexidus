@@ -34,6 +34,7 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 | Unbonding period | 21 days |
 | P2P transport | QUIC (UDP) |
 | Consensus | HyperSync BFT + Vexcel Attestation DAG |
+| Tx delivery | Dragonfly Stream (direct, PQ-sealed) or gossip mempool |
 | Gas price | ~$0.0002 per transfer |
 
 ### Bootstrap Nodes
