@@ -21,4 +21,4 @@ Vexidus is the ultimate L1 blockchain combining open-source and patent-protected
 
 ## Patent Notice
 
-IntentVM and VexBridge are protected by pending patent applications. See [vexidus.io](https://vexidus.io) for details.
+IntentVM (U.S. Patent App. 63/914,009), VexBridge (63/987,929), and Atomence (63/998,160) are protected by pending U.S. patent applications. See [vexidus.io](https://vexidus.io) for details.

@@ -24,17 +24,17 @@ Run a validator node on the Vexidus network and earn VXS rewards for securing th
 
 ## Overview
 
-Vexidus validators produce blocks every 12 seconds and earn rewards from two sources:
+Vexidus validators produce blocks with adaptive timing (500ms-12s) and earn rewards from two sources:
 
-- **Block rewards** — ~4.94 VXS per block (year 1-2 rate), auto-adjusting over a 10-year emission schedule
-- **Transaction fees** — 100% of fees go to the block proposer (no burn)
+- **Block rewards** — ~0.700 VXS per block (year 1-2 rate, density-weighted 0.5x-2.0x). 15% Foundation, 85% Validator
+- **Transaction fees** — 80% to block proposer, 20% Foundation Treasury (no burn)
 
 | Parameter | Value |
 |-----------|-------|
 | Minimum stake | 1,000 VXS |
 | Unbonding period | 21 days |
 | Max active validators | 100 |
-| Block time | 12 seconds |
+| Block time | Adaptive (500ms-12s) |
 | Epoch duration | 300 seconds |
 | Slashing | None (jail + throttle only — your VXS is never at risk) |
 | Jail threshold | Double-sign detection → escalating jail (1hr → 24hr → 7d → 30d) |
@@ -122,7 +122,7 @@ Verify: `rustc --version` (requires 1.75+)
 #### 3. Clone and build
 
 ```bash
-git clone https://github.com/Mashiyu-Devs/Vexidus.git
+git clone https://github.com/Vexidus-Labs/Vexidus.git
 cd Vexidus
 cargo build --release
 ```
@@ -461,7 +461,7 @@ Your node needs at least one bootstrap peer to discover the network. Current boo
 /ip4/205.198.87.150/udp/9945/quic-v1/p2p/12D3KooWNtRB1LKdKCTsiqm4e4tCKrvDTHpzVmYKA1uYobmbyVv3
 ```
 
-Use all three in your `--bootnodes` flag (comma-separated) for best redundancy. Updated bootstrap lists are published at [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus).
+Use all three in your `--bootnodes` flag (comma-separated) for best redundancy. Updated bootstrap lists are published at [github.com/Vexidus-Labs/Vexidus](https://github.com/Vexidus-Labs/Vexidus).
 
 ### NAT and Firewalls
 
@@ -756,7 +756,7 @@ Higher production score = more leader slots = more rewards.
 ## Links
 
 - **Documentation:** [docs.vexidus.io](https://docs.vexidus.io)
-- **Repository:** [github.com/Mashiyu-Devs/Vexidus](https://github.com/Mashiyu-Devs/Vexidus)
+- **Repository:** [github.com/Vexidus-Labs/Vexidus](https://github.com/Vexidus-Labs/Vexidus)
 - **Explorer:** [vexscan.io](https://vexscan.io)
 - **Faucet:** [vexswap.xyz](https://vexswap.xyz) (testnet VXS for staking)
 - **Developer Studio:** [vexforge.xyz](https://vexforge.xyz)

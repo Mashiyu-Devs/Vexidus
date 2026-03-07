@@ -20,8 +20,8 @@ Run a validator node on the Vexidus network and earn VXS rewards for securing th
 ## Rewards
 
 Validators earn from two sources:
-- **Block rewards** — ~4.94 VXS per block (Year 1-2 rate, 0.8% annual inflation)
-- **Transaction fees** — 100% of fees go to the block proposer
+- **Block rewards** — ~0.700 VXS per block (Year 1-2 rate). 15% Foundation, 85% Validator (density-weighted 0.5x-2.0x)
+- **Transaction fees** — 80% to block proposer, 20% Foundation Treasury
 
 Testnet validators who maintain high performance earn **mainnet VXS airdrops** at launch, proportional to on-chain reputation score.
 
@@ -30,11 +30,11 @@ Testnet validators who maintain high performance earn **mainnet VXS airdrops** a
 | Parameter | Value |
 |-----------|-------|
 | Minimum stake | 1,000 VXS |
-| Block time | 12 seconds |
+| Block time | Adaptive (500ms-12s) |
 | Unbonding period | 21 days |
 | P2P transport | QUIC (UDP) |
 | Consensus | HyperSync BFT + Vexcel Attestation DAG |
-| Tx delivery | Dragonfly Stream (direct, PQ-sealed) or gossip mempool |
+| Tx delivery | Dragonfly Stream (direct-to-leader, PQ-sealed) |
 | Gas price | ~$0.0002 per transfer |
 
 ### Bootstrap Nodes
